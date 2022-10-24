@@ -3,6 +3,7 @@ const router = express.Router()
 const axios = require('axios')
 const cheerio = require('cheerio')
 const DOMAIN = process.env.DOMAIN || "https://dopebox.to"
+const websocket = require('websocket');
 const cryptojs = require('crypto-js');
 class MixDrop {
     serverName = 'MixDrop';
