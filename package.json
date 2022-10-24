@@ -1,0 +1,23 @@
+{
+  "name": "Menifi-API",
+  "version": "1.0.0",
+  "description": "Movie API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "Shubham Singh",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cheerio": "^1.0.0-rc.10",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.20",
+    "ws": "^8.9.0"
+  }
+}
