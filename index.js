@@ -1,7 +1,7 @@
 const app = require('express')()
 require('dotenv').config()
 const PORT = process.env.PORT || 3000
-const TIMEOUT = process.env.TIMEOUT || 5000;
+
 const cors = require("cors")
 var corsOptions = {
     origin: '*',
