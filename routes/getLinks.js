@@ -153,7 +153,7 @@ class VidCloud {
     };
 
     wss = async (iframeId) => {
-        const ws = new websocket('wss://wsx.dokicloud.one/socket.io/?EIO=4&transport=websocket');
+        const ws = new websocket.WebSocket('wss://wsx.dokicloud.one/socket.io/?EIO=4&transport=websocket');
         ws.onopen = () => {
             ws.send('40');
         };
