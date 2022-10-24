@@ -3,7 +3,7 @@ const router = express.Router()
 const axios = require('axios')
 const cheerio = require('cheerio')
 const DOMAIN = process.env.DOMAIN || "https://dopebox.to"
-const websocket = require('ws');
+const websocket = require('websocket');
 const cryptojs = require('crypto-js');
 class MixDrop {
     serverName = 'MixDrop';
@@ -153,7 +153,7 @@ class VidCloud {
     };
 
     wss = async (iframeId) => {
-        const ws = new websocket.WebSocket('wss://wsx.dokicloud.one/socket.io/?EIO=4&transport=websocket');
+        const ws = new WebSocket('wss://wsx.dokicloud.one/socket.io/?EIO=4&transport=websocket');
         ws.onopen = () => {
             ws.send('40');
         };
