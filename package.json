@@ -2,9 +2,9 @@
   "name": "menifi-api",
   "version": "1.0.0",
   "description": "Movie API",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "Shubham Singh",
