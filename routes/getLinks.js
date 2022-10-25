@@ -104,7 +104,7 @@ class VidCloud {
             const key = await axios.get(
                 'https://raw.githubusercontent.com/consumet/rapidclown/rabbitstream/key.txt'
             );
-            sources = cryptojs.AES.decrypt(res.data.sources, key.data).toString(cryptojs.enc.Latin1);
+            sources = cryptojs.enc.Utf8.stringify(cryptojs.AES.decrypt(res.data.sources, key.data));
             let plaintext = JSON.parse(sources);
             this.sources = plaintext.map((s) => ({
                 url: s.file,
