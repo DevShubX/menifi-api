@@ -34,6 +34,7 @@ router.get('/episodes/:seasonId', async (req, res) => {
             return {
                 episodeName: $(el).attr('title') || $(el).find('.film-poster-img').attr('title'),
                 episodeId: $(el).attr('data-id') || null,
+                coverImage : $(el).find(".film-poster-img").attr('src') || null,
             }
         })).get()
         res.json(result)
