@@ -5,6 +5,7 @@ const cheerio = require('cheerio')
 const DOMAIN = process.env.DOMAIN || "https://dopebox.to"
 const websocket = require('ws');
 const cryptojs = require('crypto-js');
+const { isObject } = require('util')
 class MixDrop {
     serverName = 'MixDrop';
     sources = [];
@@ -18,7 +19,7 @@ class MixDrop {
                 .match(/(?<=p}\().*(?<=wurl).*\}/g);
 
             if (!match) {
-                throw new Error('Video not found.');
+                console.log('Video not found.');
             }
             const [p, a, c, k, e, d] = match[0].split(',').map(x => x.split('.sp')[0]);
             const formated = this.format(p, a, c, k, e, JSON.parse(d));
@@ -35,7 +36,7 @@ class MixDrop {
 
             return this.sources;
         } catch (err) {
-            throw new Error((err).message);
+            console.log(err);
         }
     };
 
@@ -93,19 +94,28 @@ class VidCloud {
             };
             let res = undefined;
             let sources = undefined;
-
+            let plaintext = undefined
             res = await axios.get(
                 `${isAlternative ? this.host2 : this.host}/ajax/embed-4/getSources?id=${id}`,
                 options
             );
 
             //const res = await this.wss(id!);
-
-            const key = await axios.get(
-                'https://raw.githubusercontent.com/consumet/rapidclown/rabbitstream/key.txt'
-            );
-            sources = cryptojs.enc.Utf8.stringify(cryptojs.AES.decrypt(res.data.sources, key.data));
-            let plaintext = JSON.parse(sources);
+            const isJson = (str) => {
+                try {
+                    JSON.parse(str);
+                } catch (e) {
+                    return false;
+                }
+                return true;
+            };
+            if (!isJson(res.data.sources)) {
+                const key = await axios.get(
+                    'https://raw.githubusercontent.com/consumet/rapidclown/rabbitstream/key.txt'
+                );
+                sources = cryptojs.enc.Utf8.stringify((cryptojs.AES.decrypt(res.data.sources, key.data)));
+                plaintext = JSON.parse(sources);
+            }
             this.sources = plaintext.map((s) => ({
                 url: s.file,
                 isM3U8: s.file.includes('.m3u8'),
@@ -148,7 +158,7 @@ class VidCloud {
             }));
             return result;
         } catch (err) {
-            throw err;
+            console.log(err);
         }
     };
 
@@ -207,11 +217,12 @@ fetchEpisodeSources = async (
 
     try {
         const servers = await fetchEpisodeServers(episodeId, mediaId);
-        const i = servers.findIndex((s, index) => s.name === server)
+        const i = servers.findIndex((s, index) => s.name === server);
+        console.log(servers);
         if (i === -1) {
-            throw new Error(`Server ${servers} not found`);
+            console.log(`Server ${servers} not found`);
         }
-
+        
         const { data } = await axios.get(
             `${DOMAIN}/ajax/get_link/${servers[0].url.split('.').slice(-1).shift()}`
         );
@@ -249,7 +260,7 @@ fetchEpisodeServers = async (episodeId, mediaId) => {
             .get();
         return servers;
     } catch (err) {
-        throw new Error(err);
+        console.log(err);
     }
 };
 router.get('/sources', async (req, res) => {
@@ -260,14 +271,8 @@ router.get('/sources', async (req, res) => {
     else if (req.query.mediaId === undefined || req.query.mediaId === '') {
         return res.status(400).json({ message: "Missing mediaId", status: 400 })
     }
-
-    try {
-        const result = await fetchEpisodeSources(req.query.episodeId, req.query.mediaId, req.query.server).catch((err) => console.log(err));
-        res.send(result)
-    } catch (err) {
-        res.json({ message: 'Something went wrong. Please try again later.' });
-        console.log(err);
-    }
+    const result = await fetchEpisodeSources(req.query.episodeId, req.query.mediaId, req.query.server).catch((err) => res.send({Error:"Error While obtaining"}));
+    res.send(result);
 })
 
 
