@@ -235,7 +235,7 @@ fetchEpisodeServers = async (episodeId, mediaId) => {
                 const server = {
                     name: mediaId.includes('movie')
                         ? $(el).find('a').find('span').text().toLowerCase()
-                        : $(el).find('a').find('span').text().slice(6).trim().toLowerCase(),
+                        : $(el).find('a').find('span').text().toLowerCase(),
                     url: `${DOMAIN}/${mediaId}.${!mediaId.includes('movie')
                         ? $(el).find('a').attr('data-id')
                         : $(el).find('a').attr('data-id')
