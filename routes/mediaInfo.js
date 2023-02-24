@@ -20,8 +20,23 @@ router.get("/movie/:query",async(req,res)=>{
         let movieId = $(".heading-name").find("a").attr("href");
         let filmPoster = $(".film-poster-img").attr("src");
         let duration = $(".duration").text();
-        let description = $(".description").text()
-        res.json({backgroundImage,title,movieId,filmPoster,duration,description});
+        let description = $(".description").text();
+        let releaseDate = $('div.row-line:contains("Released:")').text().trim().replace("Released: ","");
+        let genre = $('div.row-line:contains("Genre:") > a')
+        .map((i, el) => $(el).text().split('&'))
+        .get()
+        .map(v => v.trim());
+        let cast = $('div.row-line:contains("Casts:") > a')
+        .map((i, el) => $(el).text())
+        .get();
+        let country = $('div.row-line:contains("Country:") > a:nth-child(2)').text();
+        let production = $('div.row-line:contains("Production:") > a')
+        .map((i, el) => $(el).text().split('&'))
+        .get()
+        .map(v => v.trim());
+        let rating = $(".imdb").text().replace("IMDB: ","");
+        let type = movieId.split('/')[0] === 'tv' ? 'TVSERIES' : "MOVIE";
+        res.json({backgroundImage,title,movieId,filmPoster,duration,description,releaseDate,genre,cast,country,production,rating,type});
     }catch (error){
         throw error
     }
@@ -41,7 +56,22 @@ router.get("/tv/:query",async(req,res)=>{
         let filmPoster = $(".film-poster-img").attr("src");
         let duration = $(".duration").text();
         let description = $(".description").text();
-        res.json({backgroundImage,title,movieId,filmPoster,duration,description});
+        let releaseDate = $('div.row-line:contains("Released:")').text().trim().replace("Released: ","");
+        let genre = $('div.row-line:contains("Genre:") > a')
+        .map((i, el) => $(el).text().split('&'))
+        .get()
+        .map(v => v.trim());
+        let cast = $('div.row-line:contains("Casts:") > a')
+        .map((i, el) => $(el).text())
+        .get();
+        let country = $('div.row-line:contains("Country:") > a:nth-child(2)').text();
+        let production = $('div.row-line:contains("Production:") > a')
+        .map((i, el) => $(el).text().split('&'))
+        .get()
+        .map(v => v.trim());
+        let rating = $(".imdb").text().replace("IMDB: ","");
+        let type = movieId.split('/')[0] === 'tv' ? 'TVSERIES' : "MOVIE";
+        res.json({backgroundImage,title,movieId,filmPoster,duration,description,releaseDate,genre,cast,country,production,rating,type});
     }catch (error){
         throw error
     }
