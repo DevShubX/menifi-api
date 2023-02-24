@@ -91,7 +91,8 @@ router.get("/flixhq/movie/:query",async(req,res)=>{
         const uid = $('.watch_block').attr('data-id');
         let id = mediaId.split('to/').pop();
         let title = $('.heading-name > a:nth-child(1)').text();
-        let image = $('.m_i-d-poster > div:nth-child(1) > img:nth-child(1)').attr('src');
+        let filmPoster = $('.m_i-d-poster > div:nth-child(1) > img:nth-child(1)').attr('src');
+        let backgroundImage = $(".w_b-cover").css('background-image').replace("url","").replace("(","").replace(")","");
         let description = $('.description').text();
         let type = id.split('/')[0] === 'tv' ? 'TVSERIES' : 'MOVIE';
         let releaseDate = $('div.row-line:nth-child(3)').text().replace('Released: ', '').trim();
@@ -127,7 +128,8 @@ router.get("/flixhq/movie/:query",async(req,res)=>{
         res.json({
             title,
             id,
-            image,
+            filmPoster,
+            backgroundImage,
             description,
             type,
             releaseDate,
@@ -159,7 +161,8 @@ router.get("/flixhq/tv/:query",async(req,res)=>{
         const uid = $('.watch_block').attr('data-id');
         let id = mediaId.split('to/').pop();
         let title = $('.heading-name > a:nth-child(1)').text();
-        let image = $('.m_i-d-poster > div:nth-child(1) > img:nth-child(1)').attr('src');
+        let backgroundImage = $(".w_b-cover").css('background-image').replace("url","").replace("(","").replace(")","");
+        let filmPoster = $('.m_i-d-poster > div:nth-child(1) > img:nth-child(1)').attr('src');
         let description = $('.description').text();
         let type = id.split('/')[0] === 'tv' ? 'TVSERIES' : 'MOVIE';
         let releaseDate = $('div.row-line:nth-child(3)').text().replace('Released: ', '').trim();
@@ -214,7 +217,8 @@ router.get("/flixhq/tv/:query",async(req,res)=>{
         res.json({
             title,
             id,
-            image,
+            filmPoster,
+            backgroundImage,
             description,
             type,
             releaseDate,
