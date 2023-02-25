@@ -5,7 +5,17 @@ const cheerio = require('cheerio')
 const DOMAIN = process.env.DOMAIN || "https://dopebox.to"
 const websocket = require('ws');
 const cryptojs = require('crypto-js');
-const { isObject } = require('util')
+
+
+const substringAfter = (str, toFind) => {
+    const index = str.indexOf(toFind);
+    return index == -1 ? '' : str.substring(index + toFind.length);
+  };
+  
+const substringBefore = (str, toFind) => {
+    const index = str.indexOf(toFind);
+    return index == -1 ? '' : str.substring(0, index);
+};
 class MixDrop {
     serverName = 'MixDrop';
     sources = [];
@@ -13,7 +23,6 @@ class MixDrop {
     extract = async (videoUrl) => {
         try {
             const { data } = await axios.get(videoUrl.href);
-
             const match = cheerio.load(data)
                 .html()
                 .match(/(?<=p}\().*(?<=wurl).*\}/g);
@@ -84,7 +93,9 @@ class VidCloud {
             subtitles: [],
         };
         try {
+            
             const id = videoUrl.href.split('/').pop()?.split('?')[0];
+           
             const options = {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -92,14 +103,13 @@ class VidCloud {
                     'User-Agent': "USER_AGENT",
                 },
             };
-            let res = undefined;
+            let res;
             let sources = undefined;
-            let plaintext = undefined
+            let plaintext = undefined;
             res = await axios.get(
                 `${isAlternative ? this.host2 : this.host}/ajax/embed-4/getSources?id=${id}`,
                 options
             );
-
             //const res = await this.wss(id!);
             const isJson = (str) => {
                 try {
@@ -110,12 +120,20 @@ class VidCloud {
                 return true;
             };
             if (!isJson(res.data.sources)) {
-                const key = await axios.get(
-                    'https://raw.githubusercontent.com/consumet/rapidclown/rabbitstream/key.txt'
-                );
-                sources = cryptojs.enc.Utf8.stringify((cryptojs.AES.decrypt(res.data.sources, key.data)));
-                plaintext = JSON.parse(sources);
+                
+                let { data: key } = await axios.get('https://github.com/enimax-anime/key/blob/e4/key.txt');
+               
+                key = substringBefore(substringAfter(key, '"blob-code blob-code-inner js-file-line">'), '</td>');
+             
+                if (!key) {
+                    key = await (await axios.get('https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt')).data;
+                }
+
+                sources = JSON.parse(cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8));
+               
+                plaintext = sources;
             }
+           
             this.sources = plaintext.map((s) => ({
                 url: s.file,
                 isM3U8: s.file.includes('.m3u8'),
@@ -214,11 +232,10 @@ fetchEpisodeSources = async (
                 };
         }
     }
-
     try {
         const servers = await fetchEpisodeServers(episodeId, mediaId);
         const i = servers.findIndex((s, index) => s.name === server);
-        console.log(servers);
+        console.log("At 247 line the value of i is :",i);
         if (i === -1) {
             console.log(`Server ${servers} not found`);
         }
@@ -226,13 +243,18 @@ fetchEpisodeSources = async (
         const { data } = await axios.get(
             `${DOMAIN}/ajax/get_link/${servers[0].url.split('.').slice(-1).shift()}`
         );
+        console.log("At line 255",{data});
         const serverUrl = new URL(data.link);
         return await fetchEpisodeSources(serverUrl.href, mediaId, server);
     } catch (err) {
         console.log(err)
     }
+    
 };
 
+
+
+// This block is working
 fetchEpisodeServers = async (episodeId, mediaId) => {
     if (!episodeId.startsWith(DOMAIN + '/ajax') && !mediaId.includes('movie'))
         episodeId = `${DOMAIN}/ajax/v2/episode/servers/${episodeId}`;
