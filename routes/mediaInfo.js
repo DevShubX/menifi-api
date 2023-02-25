@@ -80,17 +80,17 @@ router.get("/tv/:query",async(req,res)=>{
 
 router.get("/flixhq/movie/:query",async(req,res)=>{
     try{
-        let mediaId = req.params.query.replace(/\s/g,'-');
-        let url = `${DOMAIN2}/movie/${mediaId}`;
+        let query = req.params.query.replace(/\s/g,'-');
+        let url = `${DOMAIN2}/movie/${query}`;
         console.log(url)
         let response = await axios.get(url);
         let html = response.data;
         let $  = cheerio.load(html);
 
-
-        const uid = $('.watch_block').attr('data-id');
-        let id = mediaId.split('to/').pop();
+        let id = query.split('to/').pop();
+        let uid = $('.watch_block').attr('data-id');
         let title = $('.heading-name > a:nth-child(1)').text();
+        let movieId = $('.heading-name').find('a').attr('href');
         let filmPoster = $('.m_i-d-poster > div:nth-child(1) > img:nth-child(1)').attr('src');
         let backgroundImage = $(".w_b-cover").css('background-image').replace("url","").replace("(","").replace(")","");
         let description = $('.description').text();
@@ -128,6 +128,7 @@ router.get("/flixhq/movie/:query",async(req,res)=>{
         res.json({
             title,
             id,
+            movieId,
             filmPoster,
             backgroundImage,
             description,
@@ -151,16 +152,17 @@ router.get("/flixhq/movie/:query",async(req,res)=>{
 
 router.get("/flixhq/tv/:query",async(req,res)=>{
     try{
-        let mediaId = req.params.query.replace(/\s/g,'-');
-        let url = `${DOMAIN2}/movie/${mediaId}`;
+        let query = req.params.query.replace(/\s/g,'-');
+        let url = `${DOMAIN2}/movie/${query}`;
         let response = await axios.get(url);
         let html = response.data;
         let $  = cheerio.load(html);
 
 
         const uid = $('.watch_block').attr('data-id');
-        let id = mediaId.split('to/').pop();
+        let id = query.split('to/').pop();
         let title = $('.heading-name > a:nth-child(1)').text();
+        let movieId = $('.heading-name').find('a').attr('href');
         let backgroundImage = $(".w_b-cover").css('background-image').replace("url","").replace("(","").replace(")","");
         let filmPoster = $('.m_i-d-poster > div:nth-child(1) > img:nth-child(1)').attr('src');
         let description = $('.description').text();
@@ -217,6 +219,7 @@ router.get("/flixhq/tv/:query",async(req,res)=>{
         res.json({
             title,
             id,
+            movieId,
             filmPoster,
             backgroundImage,
             description,
