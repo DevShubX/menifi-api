@@ -128,10 +128,9 @@ class VidCloud {
                 if (!key) {
                     key = await (await axios.get('https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt')).data;
                 }
-
-                sources = JSON.parse(cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8));
-               
-                plaintext = sources;
+                // sources = JSON.parse(cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8));
+                
+                plaintext = res.data.sources;
             }
            
             this.sources = plaintext.map((s) => ({
@@ -234,6 +233,7 @@ fetchEpisodeSources = async (
     }
     try {
         const servers = await fetchEpisodeServers(episodeId, mediaId);
+        console.log(servers);
         const i = servers.findIndex((s, index) => s.name === server);
         console.log("At 247 line the value of i is :",i);
         if (i === -1) {
