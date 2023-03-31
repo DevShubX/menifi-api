@@ -128,9 +128,9 @@ class VidCloud {
                 if (!key) {
                     key = await (await axios.get('https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt')).data;
                 }
-                // sources = JSON.parse(cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8));
+                sources = JSON.parse(cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8));
                 
-                plaintext = res.data.sources;
+                plaintext = sources;
             }
            
             this.sources = plaintext.map((s) => ({
