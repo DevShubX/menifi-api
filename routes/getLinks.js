@@ -91,6 +91,7 @@ class VidCloud {
         const result = {
             sources: [],
             subtitles: [],
+            downloadLink : "",
         };
         try {
             
@@ -173,6 +174,7 @@ class VidCloud {
                 url: s.file,
                 lang: s.label ? s.label : 'Default (maybe)',
             }));
+            result.downloadLink = `https://dokicloud.one/embed/m-download/${id}`;
             return result;
         } catch (err) {
             console.log(err);
