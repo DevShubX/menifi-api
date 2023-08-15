@@ -111,6 +111,7 @@ class VidCloud {
                 `${isAlternative ? this.host2 : this.host}/ajax/embed-4/getSources?id=${id}`,
                 options
             );
+
             //const res = await this.wss(id!);
             const isJson = (str) => {
                 try {
@@ -121,16 +122,31 @@ class VidCloud {
                 return true;
             };
             if (!isJson(res.data.sources)) {
-                
                 let { data: key } = await axios.get('https://github.com/enimax-anime/key/blob/e4/key.txt');
-               
+
                 key = substringBefore(substringAfter(key, '"blob-code blob-code-inner js-file-line">'), '</td>');
-             
+
                 if (!key) {
-                    key = await (await axios.get('https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt')).data;
+                key = await (
+                    await axios.get('https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt')
+                ).data;
                 }
-                sources = JSON.parse(cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8));
-                
+
+                const sourcesArray = res.data.sources.split("");
+                let extractedKey = "";
+
+                for (const index of key) {
+                for (let i = index[0]; i < index[1]; i++) {
+                    extractedKey += res.data.sources[i];
+                    sourcesArray[i] = "";
+                }
+                }
+
+                key = extractedKey;
+                res.data.sources = sourcesArray.join("");
+
+                const decryptedVal = cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8);
+                sources = isJson(decryptedVal) ? JSON.parse(decryptedVal) : res.data.sources;
                 plaintext = sources;
             }
            
@@ -174,35 +190,35 @@ class VidCloud {
                 url: s.file,
                 lang: s.label ? s.label : 'Default (maybe)',
             }));
-            result.downloadLink = `https://dokicloud.one/embed/m-download/${id}`;
+            result.downloadLink = `${isAlternative ? this.host2 : this.host }/embed/m-download/${id}`;
             return result;
         } catch (err) {
             console.log(err);
         }
     };
 
-    wss = async (iframeId) => {
-        const ws = new websocket.WebSocket('wss://wsx.dokicloud.one/socket.io/?EIO=4&transport=websocket');
-        ws.onopen = () => {
-            ws.send('40');
-        };
-        return await new Promise(resolve => {
-            let sid = '';
-            let res = { sid: '', sources: [], tracks: [] };
-            ws.onmessage = e => {
-                const data = e.data.toString();
-                if (data.startsWith('40')) {
-                    res.sid = JSON.parse(data.slice(2)).sid;
-                    ws.send(`42["getSources",{"id":"${iframeId}"}]`);
-                } else if (data.startsWith('42["getSources"')) {
-                    const ress = JSON.parse(data.slice(2))[1];
-                    res.sources = ress.sources;
-                    res.tracks = ress.tracks;
-                    resolve(res);
-                }
-            };
-        });
-    };
+    // wss = async (iframeId) => {
+    //     const ws = new websocket.WebSocket('wss://wsx.dokicloud.one/socket.io/?EIO=4&transport=websocket');
+    //     ws.onopen = () => {
+    //         ws.send('40');
+    //     };
+    //     return await new Promise(resolve => {
+    //         let sid = '';
+    //         let res = { sid: '', sources: [], tracks: [] };
+    //         ws.onmessage = e => {
+    //             const data = e.data.toString();
+    //             if (data.startsWith('40')) {
+    //                 res.sid = JSON.parse(data.slice(2)).sid;
+    //                 ws.send(`42["getSources",{"id":"${iframeId}"}]`);
+    //             } else if (data.startsWith('42["getSources"')) {
+    //                 const ress = JSON.parse(data.slice(2))[1];
+    //                 res.sources = ress.sources;
+    //                 res.tracks = ress.tracks;
+    //                 resolve(res);
+    //             }
+    //         };
+    //     });
+    // };
 };
 fetchEpisodeSources = async (
     episodeId,
@@ -233,37 +249,18 @@ fetchEpisodeSources = async (
                 };
         }
     }
-    try {
-        const servers = await fetchEpisodeServers(episodeId, mediaId);
-        console.log(servers);
-        const i = servers.findIndex((s, index) => s.name === server);
-        console.log("At 247 line the value of i is :",i);
-        if (i === -1) {
-            console.log(`Server ${servers} not found`);
-        }
-        
-        const { data } = await axios.get(
-            `${DOMAIN}/ajax/get_link/${servers[0].url.split('.').slice(-1).shift()}`
-        );
-        console.log("At line 255",{data});
-        const serverUrl = new URL(data.link);
-        return await fetchEpisodeSources(serverUrl.href, mediaId, server);
-    } catch (err) {
-        console.log(err)
-    }
     
 };
-
-
-
-// This block is working
-fetchEpisodeServers = async (episodeId, mediaId) => {
-    if (!episodeId.startsWith(DOMAIN + '/ajax') && !mediaId.includes('movie'))
-        episodeId = `${DOMAIN}/ajax/v2/episode/servers/${episodeId}`;
-    else episodeId = `${DOMAIN}/ajax/movie/episodes/${episodeId}`;
-
+const fetchEpisodeServers = async (episodeId, mediaId)=> {
+    let newEpisodeId = "";
     try {
-        const data = await axios.get(episodeId);
+        if (!episodeId.startsWith(DOMAIN + '/ajax') && !mediaId.includes('movie')){
+            newEpisodeId = `${DOMAIN}/ajax/v2/episode/servers/${episodeId}`;
+        }
+        else{
+            newEpisodeId = `${DOMAIN}/ajax/movie/episodes/${episodeId}`;
+        };
+        const data = await axios.get(newEpisodeId);
         const $ = cheerio.load(data.data);
         const servers = $('li')
             .map((i, el) => {
@@ -279,24 +276,42 @@ fetchEpisodeServers = async (episodeId, mediaId) => {
                             !mediaId.includes('movie') ? '/watch-tv/' : '/watch-movie/'
                         ),
                 };
-                return server;
+            return server;
             })
             .get();
-        return servers;
+      return servers;
     } catch (err) {
-        console.log(err);
+    //   throw new Error((err).message);
     }
-};
-router.get('/sources', async (req, res) => {
+  };
 
-    if (req.query.episodeId == undefined || req.query.href == '') {
-        return res.status(400).json({ message: "Missing episodeId", status: 400 })
+router.get('/sources', async (req, res) => {
+    let episodeId = req.query.episodeId;
+    let mediaId = req.query.mediaId;
+    let server = req.query.server || "vidcloud";
+
+    if (episodeId == undefined || req.query.href == '') {
+        return res.status(400).json({ message: "Missing episodeId", status: 400 });
     }
-    else if (req.query.mediaId === undefined || req.query.mediaId === '') {
-        return res.status(400).json({ message: "Missing mediaId", status: 400 })
+    else if (mediaId === undefined || req.query.mediaId === '') {
+        return res.status(400).json({ message: "Missing mediaId", status: 400 });
     }
-    const result = await fetchEpisodeSources(req.query.episodeId, req.query.mediaId, req.query.server).catch((err) => res.send({Error:"Error While obtaining"}));
-    res.send(result);
+    try {
+        const servers = await fetchEpisodeServers(episodeId, mediaId);
+        const i = servers.findIndex((s, index) => s.name === server);
+        if (i === -1) {
+            console.log(`Server ${servers} not found`);
+        }
+        const { data } = await axios.get(
+            `${DOMAIN}/ajax/get_link/${servers[i].url.split('.').slice(-1).shift()}`,
+        );
+        const serverUrl = new URL(data.link);
+        const result =  await fetchEpisodeSources(serverUrl.href, mediaId, server);
+        res.status(200).send(result);
+    } catch (err) {
+        res.status(403).send({"Error":"Sources not founded"});
+    }
+    // const result = await fetchEpisodeSources(req.query.episodeId, req.query.mediaId, req.query.server).catch((err) => res.send({Error:"Error While obtaining"}));
 })
 
 
