@@ -5,6 +5,7 @@ const cheerio = require('cheerio')
 const DOMAIN = process.env.DOMAIN || "https://dopebox.to"
 const websocket = require('ws');
 const cryptojs = require('crypto-js');
+const main = require('../utils/rabbit');
 
 
 const substringAfter = (str, toFind) => {
@@ -104,55 +105,59 @@ class VidCloud {
                     'User-Agent': "USER_AGENT",
                 },
             };
-            let res;
+            // let res;
             let sources = undefined;
             let plaintext = undefined;
-            res = await axios.get(
-                `${isAlternative ? this.host2 : this.host}/ajax/embed-4/getSources?id=${id}`,
-                options
-            );
+            // res = await axios.get(
+            //     `${isAlternative ? this.host2 : this.host}/ajax/embed-4/getSources?id=${id}`,
+            //     options
+            // );
 
-            //const res = await this.wss(id!);
-            const isJson = (str) => {
-                try {
-                    JSON.parse(str);
-                } catch (e) {
-                    return false;
-                }
-                return true;
-            };
-            if (!isJson(res.data.sources)) {
-                let { data: key } = await axios.get('https://raw.githubusercontent.com/theonlymo/keys/e4/key');
+            // //const res = await this.wss(id!);
+            // const isJson = (str) => {
+            //     try {
+            //         JSON.parse(str);
+            //     } catch (e) {
+            //         return false;
+            //     }
+            //     return true;
+            // };
+            // if (!isJson(res.data.sources)) {
+            //     let { data: key } = await axios.get('https://raw.githubusercontent.com/theonlymo/keys/e4/key');
 
-                key = substringBefore(substringAfter(key, '"blob-code blob-code-inner js-file-line">'), '</td>');
+            //     key = substringBefore(substringAfter(key, '"blob-code blob-code-inner js-file-line">'), '</td>');
 
-                if (!key) {
-                key = await (
-                    await axios.get('https://raw.githubusercontent.com/theonlymo/keys/e4/key')
-                ).data;
-                }
+            //     if (!key) {
+            //     key = await (
+            //         await axios.get('https://raw.githubusercontent.com/theonlymo/keys/e4/key')
+            //     ).data;
+            //     }
 
-                const sourcesArray = res.data.sources.split("");
-                let extractedKey = "";
+            //     const sourcesArray = res.data.sources.split("");
+            //     let extractedKey = "";
 
-                let currentIndex = 0;
-                for (const index of key) {
-                    const start = index[0] + currentIndex;
-                    const end = start + index[1];
-                    for (let i = start; i < end; i++) {
-                        extractedKey += res.data.sources[i];
-                        sourcesArray[i] = "";
-                    }
-                    currentIndex += index[i];
-                }
+            //     let currentIndex = 0;
+            //     for (const index of key) {
+            //         const start = index[0] + currentIndex;
+            //         const end = start + index[1];
+            //         for (let i = start; i < end; i++) {
+            //             extractedKey += res.data.sources[i];
+            //             sourcesArray[i] = "";
+            //         }
+            //         currentIndex += index[i];
+            //     }
 
-                key = extractedKey;
-                res.data.sources = sourcesArray.join("");
+            //     key = extractedKey;
+            //     res.data.sources = sourcesArray.join("");
 
-                const decryptedVal = cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8);
-                sources = isJson(decryptedVal) ? JSON.parse(decryptedVal) : res.data.sources;
-                plaintext = sources;
-            }
+            //     const decryptedVal = cryptojs.AES.decrypt(res.data.sources, key).toString(cryptojs.enc.Utf8);
+            //     sources = isJson(decryptedVal) ? JSON.parse(decryptedVal) : res.data.sources;
+            //     plaintext = sources;
+            // }
+
+            const res = await main(id);
+            
+            plaintext = res.sources;
            
             this.sources = plaintext.map((s) => ({
                 url: s.file,
