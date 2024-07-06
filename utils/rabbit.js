@@ -1232,4 +1232,4 @@ const main = async (xrax) => {
   return await newReq(xrax);
 };
 
-module.exports = {main}
+module.exports =  {main};

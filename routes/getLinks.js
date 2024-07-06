@@ -5,7 +5,7 @@ const cheerio = require('cheerio')
 const DOMAIN = process.env.DOMAIN || "https://dopebox.to"
 const websocket = require('ws');
 const cryptojs = require('crypto-js');
-const main = require('../utils/rabbit');
+const {main} = require('../utils/rabbit');
 
 
 const substringAfter = (str, toFind) => {
