@@ -1,4 +1,7 @@
 const CryptoJS = require('crypto-js');
+const fetch = require('node-fetch');
+
+
 const embed_url = 'https://rabbitstream.net/v2/embed-4/';
 const referrer = 'https://flixhq.to/';
 const user_agent = 'Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0';
