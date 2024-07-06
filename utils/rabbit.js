@@ -1,6 +1,5 @@
 const CryptoJS = require('crypto-js');
-const fetch = require('node-fetch');
-
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const embed_url = 'https://rabbitstream.net/v2/embed-4/';
 const referrer = 'https://flixhq.to/';
