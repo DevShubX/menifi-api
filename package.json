@@ -4,7 +4,7 @@
   "description": "Movie API",
   "main": "server.js",
   "engines": {
-    "node": "16.x"
+    "node": "20.x"
   },
   "scripts": {
     "start": "nodemon server.js"
@@ -19,7 +19,7 @@
     "crypto-js": "^4.1.1",
     "dotenv": "^16.0.1",
     "express": "^4.17.1",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.7.0",
     "nodemon": "^2.0.20",
     "websocket": "^1.0.34",
     "ws": "^8.9.0"

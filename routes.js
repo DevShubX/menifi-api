@@ -7,7 +7,7 @@ const movie = require('./routes/movie');
 const search = require('./routes/search');
 const tv = require('./routes/tv');
 
-route.use('/search',search);
+route.use('/',search);
 route.use('/movie',movie);
 route.use('/tv',tv);
 route.use('/info',mediaInfo);
