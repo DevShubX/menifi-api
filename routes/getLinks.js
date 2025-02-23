@@ -12,7 +12,6 @@ router.get('/sources', async (req, res) => {
     let server = req.query.server || "vidcloud";
     let sources = {};    
 
-    console.log(server);
 
     if (episodeId == undefined || req.query.href == '') {
         return res.status(400).json({ message: "Missing episodeId" });
@@ -22,7 +21,6 @@ router.get('/sources', async (req, res) => {
     }
     try {
         const servers = await fetchEpisodeServers(episodeId, mediaId);
-        console.log(servers);
         const i = servers.findIndex((s, index) => s.name === server);
         if (i === -1) {
             console.log(`Server ${servers} not found`);
@@ -33,7 +31,6 @@ router.get('/sources', async (req, res) => {
 
         let serverUrl = new URL(data.link);
 
-        console.log(serverUrl)
 
         if (serverUrl.href.startsWith('http')) {
             serverUrl = new URL(serverUrl.href);

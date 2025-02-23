@@ -8,7 +8,6 @@ class MixDrop {
         try {
             const { data } = await axios.get(videoUrl.href);
 
-            console.log(data);
 
             const formated = eval(/(eval)(\(f.*?)(\n<\/script>)/s.exec(data)[2].replace('eval', ''));
 

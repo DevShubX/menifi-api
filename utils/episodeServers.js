@@ -11,9 +11,10 @@ const fetchEpisodeServers = async (episodeId, mediaId) => {
         else {
             newEpisodeId = `${DOMAIN}/ajax/movie/episodes/${episodeId}`;
         };
+
         const data = await axios.get(newEpisodeId);
         const $ = cheerio.load(data.data);
-        const servers = $('.nav > li')
+        const servers = $('li')
             .map((i, el) => {
                 const server = {
                     name: mediaId.includes('movie')
@@ -21,7 +22,7 @@ const fetchEpisodeServers = async (episodeId, mediaId) => {
                         : $(el).find('a').find('span').text().toLowerCase(),
                     url: `${DOMAIN}/${mediaId}.${!mediaId.includes('movie')
                         ? $(el).find('a').attr('data-id')
-                        : $(el).find('a').attr('data-id')
+                        : $(el).find('a').attr('data-linkid')
                         }`.replace(
                             !mediaId.includes('movie') ? /\/tv\// : /\/movie\//,
                             !mediaId.includes('movie') ? '/watch-tv/' : '/watch-movie/'
@@ -32,7 +33,7 @@ const fetchEpisodeServers = async (episodeId, mediaId) => {
             .get();
         return servers;
     } catch (err) {
-        console.log(err);
+        // console.log(err);
     }
 };
 

@@ -66,7 +66,6 @@ class VidCloud {
                 }
                 result.sources.push(...this.sources);
             }
-            console.log("sources",sources);
 
             result.sources.push({
                 url: sources[0].file,
